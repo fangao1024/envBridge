@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title data-i18n="EnvBridge · 浏览器环境迁移">EnvBridge · 浏览器环境迁移</title>
+  <link rel="stylesheet" href="src/ui/styles.css">
+  <script type="module" src="src/ui/popup.js"></script>
+</head>
+<body>
+  <!-- Keep symbols in this document: external SVG use references can delay load
+       while Chrome keeps the action popup hidden until loading completes. -->
+  <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;overflow:hidden">
+    <symbol id="icon-open-workspace" viewBox="0 0 24 24"><path d="M14 4h6v6m0-6L10 14M10 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5"/></symbol>
+    <symbol id="icon-swap" viewBox="0 0 24 24"><path d="M8 20V4m-4 4 4-4 4 4m4-4v16m-4-4 4 4 4-4"/></symbol>
+    <symbol id="icon-cookies" viewBox="0 0 24 24"><path d="M20.8 12.8A9 9 0 1 1 11.2 3.2a4 4 0 0 0 5 5 4 4 0 0 0 4.6 4.6Z"/><g fill="currentColor" stroke="none"><circle cx="8" cy="9" r="1"/><circle cx="7" cy="14" r="1"/><circle cx="12" cy="16" r="1"/><circle cx="13" cy="11" r="1"/></g></symbol>
+    <symbol id="icon-localStorage" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M4 13h16m-12 3h3"/><circle cx="16" cy="16" r=".75" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="icon-sessionStorage" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18m-15-2h2m5 5v2l1.5 1"/><circle cx="13" cy="14" r="3"/></symbol>
+    <symbol id="icon-indexedDB" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></symbol>
+    <symbol id="icon-arrow-right" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+    <symbol id="icon-arrow-left" viewBox="0 0 24 24"><path d="M20 12H4m6-6-6 6 6 6"/></symbol>
+    <symbol id="icon-arrow-down" viewBox="0 0 24 24"><path d="M12 4v16m-6-6 6 6 6-6"/></symbol>
+    <symbol id="icon-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="icon-transfer" viewBox="0 0 24 24"><path d="M4 8h16m-4-4 4 4-4 4M20 16H4m4-4-4 4 4 4"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="icon-warning" viewBox="0 0 24 24"><path d="m10.3 4-8 14a2 2 0 0 0 1.7 3h16a2 2 0 0 0 1.7-3l-8-14a2 2 0 0 0-3.4 0ZM12 9v4"/><circle cx="12" cy="17" r=".75" fill="currentColor" stroke="none"/></symbol>
+  </svg>
+  <div class="app">
+    <header class="header">
+      <a class="brand" href="popup.html" aria-label="EnvBridge 首页" data-i18n-aria-label="EnvBridge 首页"><img src="assets/logo.svg" alt="" width="36" height="36"><span><strong>EnvBridge<span class="version">1.1.1</span></strong><small>Bridge your browser environments.</small></span></a>
+      <button id="workspace" class="icon-button" title="在独立标签页打开" aria-label="在独立标签页打开" data-i18n-title="在独立标签页打开" data-i18n-aria-label="在独立标签页打开"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-open-workspace"></use></svg></button>
+    </header>
+    <nav class="nav" aria-label="主要导航" data-i18n-aria-label="主要导航">
+      <button data-view="transfer" class="active" data-i18n="环境迁移">环境迁移</button><button data-view="history" data-i18n="历史记录">历史记录</button><button data-view="presets" data-i18n="环境预设">环境预设</button><button data-view="settings" data-i18n="设置">设置</button><button data-view="about" data-i18n="关于">关于</button>
+    </nav>
+    <div id="notice" class="notice" role="status" hidden></div>
+    <main>
+      <section id="transfer-view" class="view">
+        <div class="view-content">
+        <div class="intro"><div><span class="eyebrow">BROWSER STATE BRIDGE</span><h1 data-i18n="连接环境，接着开发。">连接环境，接着开发。</h1><p data-i18n="将熟悉的浏览器状态，带到下一个环境。">将熟悉的浏览器状态，带到下一个环境。</p></div><span class="local-badge" data-i18n="本地处理"><i></i> 本地处理</span></div>
+        <div class="transfer-layout">
+          <div>
+            <div class="environment-card">
+              <div class="environment source">
+                <div class="label-line"><label for="source-tab"><span class="dot"></span> SOURCE <span data-i18n="源环境">源环境</span></label><button id="use-current" class="text-button" data-i18n="使用当前页面">使用当前页面</button></div>
+                <select id="source-tab" aria-label="源标签页" data-i18n-aria-label="源标签页"></select>
+                <input id="source-origin" type="url" placeholder="https://www.example.com" aria-label="源 Origin" hidden data-i18n-aria-label="源 Origin">
+              </div>
+              <div class="bridge-line"><span></span><button id="swap" title="交换源与目标" aria-label="交换源与目标" data-i18n-title="交换源与目标" data-i18n-aria-label="交换源与目标"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-swap"></use></svg></button><span></span></div>
+              <div class="environment target">
+                <div class="label-line"><label for="target-tab"><span class="dot"></span> TARGET <span data-i18n="目标环境">目标环境</span></label><button id="refresh-tabs" class="text-button" data-i18n="刷新列表">刷新列表</button></div>
+                <select id="target-tab" aria-label="目标标签页" data-i18n-aria-label="目标标签页"></select>
+                <input id="target-origin" type="url" placeholder="http://localhost:3000" aria-label="目标 Origin" hidden data-i18n-aria-label="目标 Origin">
+              </div>
+            </div>
+            <p class="help environment-help" data-i18n="选择已打开的页面，或输入地址后由扩展打开。sessionStorage 使用所选标签页。读取 Cookies 会申请当前主机及合法父域的 HTTP / HTTPS 权限。">选择已打开的页面，或输入地址后由扩展打开。sessionStorage 使用所选标签页。读取 Cookies 会申请当前主机及合法父域的 HTTP / HTTPS 权限。</p>
+          </div>
+          <div>
+            <div class="section-heading"><h2 data-i18n="迁移哪些数据">迁移哪些数据</h2><button id="select-types" class="text-button" data-i18n="全选 / 全不选">全选 / 全不选</button></div>
+            <div id="type-list" class="type-list"></div>
+            <details class="strategy">
+              <summary data-i18n="迁移策略"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-chevron-down"></use></svg>迁移策略 <span id="strategy-label">Rewrite · Merge</span></summary>
+              <div class="strategy-fields">
+                <label>Cookie<select id="cookie-mode"><option value="rewrite" data-i18n="Rewrite · 重写目标属性">Rewrite · 重写目标属性</option><option value="preserve" data-i18n="Preserve · 保留源属性">Preserve · 保留源属性</option></select></label>
+                <label>Web Storage<select id="storage-mode"><option value="merge" data-i18n="Merge · 合并并覆盖同名 Key">Merge · 合并并覆盖同名 Key</option><option value="overwrite" data-i18n="Overwrite · 覆盖同名 Key">Overwrite · 覆盖同名 Key</option><option value="clear" data-i18n="Clear &amp; Clone · 清空后复制">Clear & Clone · 清空后复制</option></select></label>
+                <label data-i18n="IndexedDB 冲突">IndexedDB 冲突<select id="idb-mode"><option value="merge" data-i18n="Merge · 合并兼容结构与记录">Merge · 合并兼容结构与记录</option><option value="replace" data-i18n="Replace Database · 替换同名数据库">Replace Database · 替换同名数据库</option><option value="cancel" data-i18n="Cancel · 跳过已存在的数据库">Cancel · 跳过已存在的数据库</option></select></label>
+                <label class="check-line" data-i18n="完成并校验成功后刷新目标页面"><input id="reload" type="checkbox"> 完成并校验成功后刷新目标页面</label>
+              </div>
+            </details>
+          </div>
+        </div>
+        </div>
+        <div class="view-actions">
+          <div class="transfer-actions"><button id="preview" class="button secondary" data-i18n="预览变更">预览变更</button><button id="clone-all" class="button primary" data-i18n="迁移所选数据">迁移所选数据 <svg class="icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-arrow-right"></use></svg></button></div>
+          <p class="footnote" data-i18n="数据仅在设备本地流转 · 不上传 · 撤销快照仅存会话内存">数据仅在设备本地流转 · 不上传 · 撤销快照仅存会话内存</p>
+        </div>
+      </section>
+      <section id="preview-view" class="view" hidden>
+        <div class="view-content">
+        <button id="back" class="text-button back" data-i18n="返回环境选择"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-arrow-left"></use></svg>返回环境选择</button>
+        <div class="section-heading"><div><span class="eyebrow">REVIEW BEFORE CLONE</span><h1 data-i18n="预览迁移变更">预览迁移变更</h1></div><span id="preview-total" class="pill"></span></div>
+        <div id="preview-origins" class="origin-summary"></div>
+        <div id="preview-warnings"></div>
+        <div class="legend"><span class="add" data-i18n="+ 新增">+ 新增</span><span class="modify" data-i18n="~ 修改">~ 修改</span><span class="same" data-i18n="= 相同">= 相同</span><span class="remove" data-i18n="− 移除">− 移除</span><span class="warning" data-i18n="! 注意">! 注意</span></div>
+        <div id="preview-groups"></div>
+        </div>
+        <div class="view-actions">
+          <div class="preview-actions"><button id="save-preset" class="button secondary" data-i18n="保存环境预设">保存环境预设</button><button id="confirm-clone" class="button primary" data-i18n="开始迁移">开始迁移 <svg class="icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-arrow-right"></use></svg></button></div>
+          <p class="footnote" data-i18n="预览不展示数据值。Cookie 属性变更和冲突会列在详情中。">预览不展示数据值。Cookie 属性变更和冲突会列在详情中。</p>
+        </div>
+      </section>
+      <section id="result-view" class="view" hidden>
+        <div class="view-content">
+        <div class="result-hero"><div id="result-icon" class="result-icon"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-transfer"></use></svg></div><span class="eyebrow">CLONE REPORT</span><h1 id="result-title" data-i18n="正在连接环境">正在连接环境</h1><p id="result-subtitle" data-i18n="每一类数据都会单独写入并校验。">每一类数据都会单独写入并校验。</p></div>
+        <div id="result-origins" class="origin-summary"></div>
+        <div id="result-steps" class="result-steps"></div>
+        <div id="result-errors"></div>
+        <details class="logs"><summary data-i18n="执行日志">执行日志 <span data-i18n="仅记录状态与数量">仅记录状态与数量</span></summary><ol id="logs"></ol></details>
+        </div>
+        <div class="view-actions"><div class="preview-actions"><button id="new-clone" class="button secondary" data-i18n="继续迁移">继续迁移</button><button id="reload-target" class="button primary" data-i18n="刷新目标页面">刷新目标页面</button></div></div>
+      </section>
+      <section id="presets-view" class="view" hidden>
+        <div class="view-content">
+        <span class="eyebrow">YOUR ENVIRONMENTS</span><h1 data-i18n="常用环境，一步连接。">常用环境，一步连接。</h1><p class="muted" data-i18n="保存环境映射和迁移策略，不保存网页数据。">保存环境映射和迁移策略，不保存网页数据。</p><div id="presets-list"></div>
+        </div>
+      </section>
+      <section id="history-view" class="view" hidden>
+        <div class="view-content">
+        <div class="section-heading"><div><span class="eyebrow">SESSION HISTORY</span><h1 data-i18n="历史记录与撤销">历史记录与撤销</h1></div><button id="clear-history" class="text-button" data-i18n="清空历史">清空历史</button></div>
+        <p class="muted" data-i18n="最多保存最近 10 次迁移的目标快照，按时间倒序撤销。快照仅在浏览器会话内存中保留，重启浏览器或重新加载扩展后清除；达到内存上限时释放较早记录。">最多保存最近 10 次迁移的目标快照，按时间倒序撤销。快照仅在浏览器会话内存中保留，重启浏览器或重新加载扩展后清除；达到内存上限时释放较早记录。</p>
+        <p class="help" data-i18n="撤销合并迁移只恢复受影响的 Cookie 与 Storage Key；撤销清空 Storage 或数据库迁移，会恢复对应存储或数据库到迁移前状态。">撤销合并迁移只恢复受影响的 Cookie 与 Storage Key；撤销清空 Storage 或数据库迁移，会恢复对应存储或数据库到迁移前状态。</p>
+        <div id="history-list"></div>
+        </div>
+      </section>
+      <section id="settings-view" class="view" hidden>
+        <div class="view-content">
+        <span class="eyebrow">MAKE IT YOURS</span><h1 data-i18n="默认迁移设置">默认迁移设置</h1><p class="muted" data-i18n="下次打开时使用这些策略。">下次打开时使用这些策略。</p>
+        <form id="settings-form" class="settings-form">
+          <label data-i18n="界面语言">界面语言<select id="language" name="language"><option value="zh-CN">简体中文</option><option value="en">English</option></select></label>
+          <p class="help" data-i18n="切换后立即生效并自动保存。">切换后立即生效并自动保存。</p>
+          <label data-i18n="默认 Cookie 模式">默认 Cookie 模式<select name="cookieMode"><option value="rewrite" data-i18n="Rewrite · 自动重写">Rewrite · 自动重写</option><option value="preserve" data-i18n="Preserve · 保留原属性">Preserve · 保留原属性</option></select></label>
+          <label data-i18n="默认 Storage 模式">默认 Storage 模式<select name="storageMode"><option value="merge" data-i18n="Merge · 合并">Merge · 合并</option><option value="overwrite" data-i18n="Overwrite · 覆盖同名 Key">Overwrite · 覆盖同名 Key</option><option value="clear" data-i18n="Clear &amp; Clone · 清空后复制">Clear & Clone · 清空后复制</option></select></label>
+          <label data-i18n="默认 IndexedDB 冲突策略">默认 IndexedDB 冲突策略<select name="indexedDBMode"><option value="merge" data-i18n="Merge · 合并">Merge · 合并</option><option value="replace" data-i18n="Replace Database · 替换">Replace Database · 替换</option><option value="cancel" data-i18n="Cancel · 跳过已有数据库">Cancel · 跳过已有数据库</option></select></label>
+          <label class="check-line" data-i18n="迁移成功后刷新目标"><input type="checkbox" name="reload"> 迁移成功后刷新目标</label>
+          <label class="check-line" data-i18n="每次迁移前展示预览"><input type="checkbox" name="preview"> 每次迁移前展示预览</label>
+          <button class="button primary" type="submit" data-i18n="保存设置">保存设置</button>
+        </form>
+        </div>
+      </section>
+      <section id="about-view" class="view" hidden>
+        <div class="view-content">
+        <div class="about-hero"><img src="assets/logo.svg" width="64" height="64" alt="EnvBridge"><h1>EnvBridge</h1><p>Browser Environment State Bridge</p><span class="pill" data-i18n="版本 1.1.1 · Manifest V3">版本 1.1.1 · Manifest V3</span></div>
+        <div class="about-copy"><h2 data-i18n="让开发环境无缝连接。">让开发环境无缝连接。</h2><p data-i18n="在用户选择的源与目标环境之间，迁移 Cookie、localStorage、sessionStorage 和 IndexedDB。">在用户选择的源与目标环境之间，迁移 Cookie、localStorage、sessionStorage 和 IndexedDB。</p><h2 data-i18n="本地优先">本地优先</h2><p data-i18n="没有账号、服务器或遥测。预设只保存环境地址与设置；历史记录的撤销快照仅存浏览器会话内存，不写入持久存储。">没有账号、服务器或遥测。预设只保存环境地址与设置；历史记录的撤销快照仅存浏览器会话内存，不写入持久存储。</p><a class="external-link" href="privacy.html" target="_blank" rel="noreferrer" data-i18n="阅读隐私政策">阅读隐私政策 <svg class="icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-open-workspace"></use></svg></a><h2 data-i18n="使用与反馈">使用与反馈</h2><p data-i18n="安装和故障排查见项目 README.md。反馈时请提供浏览器版本、操作步骤及错误码，避免附带 Token 或数据值。">安装和故障排查见项目 README.md。反馈时请提供浏览器版本、操作步骤及错误码，避免附带 Token 或数据值。</p><p class="help" data-i18n="支持当前浏览器会话中的历史撤销，不提供长期备份或导入导出。无痕窗口与分区 Cookie 暂不支持。">支持当前浏览器会话中的历史撤销，不提供长期备份或导入导出。无痕窗口与分区 Cookie 暂不支持。</p></div>
+        </div>
+      </section>
+    </main>
+    <footer class="footer"><span><i></i> LOCAL FIRST</span><span>Move browser state. Keep coding.</span></footer>
+  </div>
+  <dialog id="confirm-dialog"><form method="dialog"><span class="eyebrow">PLEASE REVIEW</span><h2 id="confirm-title" data-i18n="确认迁移">确认迁移</h2><div id="confirm-body"></div><div class="dialog-actions"><button class="button secondary" value="cancel" data-i18n="取消">取消</button><button class="button danger" value="confirm" data-i18n="确认并继续">确认并继续</button></div></form></dialog>
+  <dialog id="preset-dialog"><form id="preset-form"><span class="eyebrow">SAVE ENVIRONMENT</span><h2 data-i18n="保存这条环境映射">保存这条环境映射</h2><label data-i18n="预设名称">预设名称<input id="preset-name" required maxlength="80" placeholder="例如：Production → Local" autocomplete="off" data-i18n-placeholder="例如：Production → Local"></label><div class="dialog-actions"><button id="cancel-preset" type="button" class="button secondary" data-i18n="取消">取消</button><button class="button primary" type="submit" data-i18n="保存预设">保存预设</button></div></form></dialog>
+</body>
+</html>
