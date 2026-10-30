@@ -8,7 +8,7 @@ const files=['manifest.json','popup.html','privacy.html','PRIVACY.md','README.md
 const manifest=JSON.parse(await readFile('manifest.json','utf8'));
 const archive=`dist/envbridge-${manifest.version}.zip`;
 async function walk(dir){for(const item of await readdir(dir,{withFileTypes:true})){const name=`${dir}/${item.name}`;if(item.isDirectory())await walk(name);else files.push(name);}}
-await walk('src');await walk('assets');await walk('docs');
+await walk('src');await walk('assets');await walk('docs');await walk('_locales');
 const parts=[],directory=[];let offset=0;
 for(const file of files){
   const data=await readFile(file),compressed=deflateRawSync(data),name=Buffer.from(file),crc=crc32(data);

@@ -1,0 +1,14 @@
+{
+  "extensionName": {
+    "message": "EnvBridge",
+    "description": "扩展名称，用于浏览器和商店列表。"
+  },
+  "extensionDescription": {
+    "message": "在开发环境之间迁移 Cookie、Web Storage 和 IndexedDB。",
+    "description": "简要说明扩展的用途。"
+  },
+  "actionTitle": {
+    "message": "EnvBridge · 浏览器环境迁移",
+    "description": "扩展工具栏按钮的提示文字。"
+  }
+}

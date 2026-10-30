@@ -1,0 +1,14 @@
+{
+  "extensionName": {
+    "message": "EnvBridge",
+    "description": "The extension name shown in the browser and store listing."
+  },
+  "extensionDescription": {
+    "message": "Move cookies, Web Storage, and IndexedDB between development environments.",
+    "description": "A concise description of the extension's purpose."
+  },
+  "actionTitle": {
+    "message": "EnvBridge · Browser Environment Migration",
+    "description": "The tooltip for the extension toolbar button."
+  }
+}
